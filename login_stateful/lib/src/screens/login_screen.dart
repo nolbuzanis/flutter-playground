@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../mixins/validation_mixin.dart';
 
 class LoginScreen extends StatefulWidget {
   createState() {
@@ -6,11 +7,17 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> with ValidationMixin{
+  final formKey = GlobalKey<FormState>();
+
+  String email = '';
+  String password = '';
+
   Widget build(context) {
     return Container(
       padding: EdgeInsets.all(20.0),
       child: Form(
+        key: formKey,
         child: Column(
           children: [
             emailField(),
@@ -31,6 +38,10 @@ class LoginScreenState extends State<LoginScreen> {
         labelText: 'Email Address',
         hintText: 'you@example.com',
       ),
+      validator: validateEmail,
+      onSaved: (value) {
+        email = value!;
+      },
     );
   }
 
@@ -40,14 +51,23 @@ class LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         icon: Icon(Icons.lock),
         labelText: 'Password',
-        ),
+      ),
+      validator: validatePassword,
+      onSaved: (value) {
+        password = value!;
+      },
     );
   }
 
   Widget submitButton() {
     return ElevatedButton(
-      onPressed: (){}, 
-    child: Text('Submit!'),
+      onPressed: () {
+        if (formKey.currentState!.validate()) {
+          formKey.currentState?.save();
+          print('Time to post $email and $password to API.');
+        }
+      },
+      child: Text('Submit!'),
     );
   }
 }
